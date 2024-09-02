@@ -1,0 +1,15 @@
+[MASTER]
+# A comma-separated list of package or module names from where C extensions may be loaded.
+extension-pkg-whitelist=
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker with the given id(s).
+disable=C0116,C0301,c0114,c0206,W0621,R0913
+
+[REPORTS]
+# Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio).
+output-format=text
+
+[LOGGING]
+# Logging modules to check that the string format arguments are in logging function parameter format
+logging-modules=logging

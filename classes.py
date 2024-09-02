@@ -3,12 +3,31 @@ import time
 BUY, SELL = True, False
 
 
-# define classes here
 class Trade:
-    def __init__(self, who_name: str, ticket_name: str, type: bool, price: float, volume: int, time: float, is_deactivated = False):
+    """
+    A class to represent a trade.
+
+    Attributes:
+    who : str
+        name of the trader
+    ticket : str
+        name of the ticket
+    type : bool
+        type of the trade (BUY/SELL)
+    price : float
+        price of the trade
+    volume : int
+        volume of the trade
+    time : float
+        time of the trade
+    is_deactivated : bool
+        status of the trade
+    """
+    def __init__(self, who_name: str, ticket_name: str, trade_type: bool, price: float,
+                 volume: int, time: float, is_deactivated=False):
         self.who = who_name
         self.ticket = ticket_name
-        self.type = type
+        self.type = trade_type
         self.price = price
         self.volume = volume
         self.time = time
@@ -29,7 +48,20 @@ class Trade:
 
 
 class Dividend:
-    def __init__(self, ticket_name: str, amount: float, time: float, is_deactivated = False):
+    """
+    A class to represent a dividend.
+
+    Attributes:
+    ticket : str
+        name of the ticket
+    amount : float
+        amount of the dividend
+    time : float
+        time of the dividend
+    is_deactivated : bool
+        status of the dividend
+    """
+    def __init__(self, ticket_name: str, amount: float, time: float, is_deactivated=False):
         self.ticket = ticket_name
         self.amount = amount
         self.time = time
@@ -48,8 +80,22 @@ class Dividend:
             time.strftime("%m-%d-%Y", time.localtime(self.time)),
             self.ticket, self.amount))
 
+
 class Transaction:
-    def __init__(self, who_name: str, amount: float, time: float, is_deactivated = False):
+    """
+    A class to represent a transaction.
+
+    Attributes:
+    who : str
+        name of the person involved in the transaction
+    amount : float
+        amount of the transaction
+    time : float
+        time of the transaction
+    is_deactivated : bool
+        status of the transaction
+    """
+    def __init__(self, who_name: str, amount: float, time: float, is_deactivated=False):
         self.who = who_name
         self.amount = amount
         self.time = time
@@ -68,8 +114,26 @@ class Transaction:
             time.strftime("%m-%d-%Y", time.localtime(self.time)),
             self.who, self.amount))
 
+
 class Status:
-    def __init__(self, who_name: str, balance: float, time: float, portfolio = {}, is_deactivated = False):
+    """
+    A class to represent a status.
+
+    Attributes:
+    who : str
+        name of the person
+    balance : float
+        balance of the person
+    time : float
+        time of the status
+    portfolio : dict
+        portfolio of the person
+    is_deactivated : bool
+        status of the person
+    """
+    def __init__(self, who_name: str, balance: float, time: float, portfolio=None, is_deactivated=False):
+        if portfolio is None:
+            portfolio = {}
         self.who = who_name
         self._balance = balance
         self._portfolio = portfolio
@@ -112,12 +176,23 @@ class Status:
     def print(self):
         print("Status -> date: {}, who: {}, balance: {}, tickets:{}".format(
             time.strftime("%m-%d-%Y", time.localtime(self.time)),
-            self.who, self.balance, '_'.join([ticket['ticker']+'-'+ticket['vol'] for ticket in self.get_portfolio()])
+            self.who, self.balance, '_'.join([ticket + '-' + str(vol) for ticket, vol in self.get_portfolio().items()])
         ))
 
 
 class Ticket:
-    def __init__(self, name: str, symbol: str, is_deactivated = False):
+    """
+    A class to represent a ticket.
+
+    Attributes:
+    name : str
+        name of the ticket
+    symbol : str
+        symbol of the ticket
+    is_deactivated : bool
+        status of the ticket
+    """
+    def __init__(self, name: str, symbol: str, is_deactivated=False):
         self.name = name
         self.symbol = symbol
         self._is_deactivated = is_deactivated
@@ -130,7 +205,6 @@ class Ticket:
     def is_deactivated(self, is_deactivated: bool):
         self._is_deactivated = is_deactivated
 
-
     def find_its_trade(self, trades):
         res = []
         for trade in trades:
@@ -138,15 +212,25 @@ class Ticket:
                 res.append(trade)
         return res
 
-    def find_its_dividend(self, dividend):
+    def find_its_dividend(self, dividends):
         res = []
-        for div in dividend:
+        for div in dividends:
             if div.ticket == self.name or div.ticket == self.symbol:
                 res.append(div)
         return res
 
     def history(self, fromwhen, tillwhen, trades):
+        """
+        Retrieves and prints the trade history for a given time range.
 
+        Args:
+            fromwhen (int): The starting timestamp of the time range.
+            tillwhen (int): The ending timestamp of the time range.
+            trades (list): A list of trade objects.
+
+        Returns:
+            None: If there is no trade history for the given stock.
+        """
         its_trade = self.find_its_trade(trades)
         if not its_trade:
             print("No trade history on {}".format(self.name))
@@ -160,10 +244,32 @@ class Ticket:
             if fromwhen < trade.time < tillwhen:
                 trade.print()
         print("----------------------------")
+        return None
 
 
 class User:
-    def __init__(self, name: str, nickname: str, balance = 0, inittime = time.time(), portfolio = {}, is_deactivated = False):
+    """
+    A class to represent a user.
+
+    Attributes:
+    name : str
+        name of the user
+    nickname : str
+        nickname of the user
+    balance : float
+        balance of the user
+    inittime : float
+        initial time of the user
+    portfolio : dict
+        portfolio of the user
+    is_deactivated : bool
+        status of the user
+    """
+    def __init__(self, name: str, nickname: str, balance=0, inittime=None, portfolio=None, is_deactivated=False):
+        if inittime is None:
+            inittime = time.time()
+        if portfolio is None:
+            portfolio = {}
         self.name = name
         self.nickname = nickname
         self._balance = balance
@@ -215,9 +321,9 @@ class User:
                 res.append(trans)
         return res
 
-    def find_my_status(self, status):
+    def find_my_status(self, statuses):
         res = []
-        for stat in status:
+        for stat in statuses:
             if stat.who == self.name or stat.who == self.nickname:
                 res.append(stat)
         return res
@@ -246,14 +352,40 @@ class User:
 
 
 def find_user_by_name(name: str, users):
+    """
+    Find a user by name or nickname.
+
+    Parameters:
+    name : str
+        name or nickname of the user
+    users : list
+        list of users
+
+    Returns:
+    User or None
+        the user if found, otherwise None
+    """
     for user in users:
-        if name == user.name or name == user.nickname:
+        if name in (user.name,user.nickname):
             return user
     return None
 
 
 def find_ticket_by_name(name: str, tickets):
+    """
+    Find a ticket by name or symbol.
+
+    Parameters:
+    name : str
+        name or symbol of the ticket
+    tickets : list
+        list of tickets
+
+    Returns:
+    Ticket or None
+        the ticket if found, otherwise None
+    """
     for ticket in tickets:
-        if name == ticket.name or name == ticket.symbol:
+        if name in (ticket.name,ticket.symbol):
             return ticket
     return None
